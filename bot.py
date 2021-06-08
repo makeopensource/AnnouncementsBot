@@ -17,16 +17,29 @@ intents.members = True
 client = discord.Client()
 
 
+
 ###################################
 # database manipulation functions #
 ###################################
 
-
 # ensure that announcements database reflects discord channel with routine checks
-def sync_announcements():
-    # channel = client.get_channel(ANNOUNCEMENTS_ID)
-    # messages = channel.history(limit=200).flatten()
-    pass
+async def sync_announcements():
+    channel = client.get_channel(int(ANNOUNCEMENTS_ID))  # announcements channel
+    announcements = await channel.history().flatten()  # all announcement channel messages
+    announcement_ids = set([ann.id for ann in announcements])
+    response = requests.get('http://127.0.0.1:8000/announcements/api/', headers=head)
+    
+    if response.status_code == 200:
+        # add announcement if not present in database
+        for ann in announcements:
+            ann_exists = requests.get(f'http://127.0.0.1:8000/announcements/api/{ann.id}/')
+            if ann_exists.status_code == 404:
+                add_announcement(ann)
+       
+        # delete announcement if not present in announcements channel
+        for db_ann in response.json()['results']:
+            if db_ann['discord_id'] not in announcement_ids:
+                requests.delete(f'http://127.0.0.1:8000/announcements/api/{db_ann["discord_id"]}/', headers=head)
 
 
 # add new announcement to database
@@ -36,7 +49,7 @@ def add_announcement(message):
         'discord_id': message.id,
         'created_at': message.created_at
     }
-    response = requests.post('http://127.0.0.1:8000/announcements/', new_announcement, headers=head)
+    response = requests.post('http://127.0.0.1:8000/announcements/api/', new_announcement, headers=head)
     return response.status_code
 
 
@@ -47,37 +60,49 @@ def edit_announcement(message):
         'discord_id': message.id,
         'created_at': message.created_at
     }
-    response = requests.patch(f'http://127.0.0.1:8000/announcements/{message.id}/', edited_announcement, headers=head)
+    response = requests.patch(f'http://127.0.0.1:8000/announcements/api/{message.id}/', edited_announcement, headers=head)
     return response.status_code
 
 
 # remove announcement
 def remove_announcement(message):
-    response = requests.delete(f'http://127.0.0.1:8000/announcements/{message.id}/', headers=head)
+    response = requests.delete(f'http://127.0.0.1:8000/announcements/api/{message.id}/', headers=head)
     return response.status_code
 
+
+######################
+# discord bot events #
+######################
+
+# respond to all user toggled changes
+# to reflect those changes live on the
+# announcements page
 
 
 @client.event
 async def on_ready():
     print('logged in as {0.user}'.format(client))
-    sync_announcements()
+    await sync_announcements()
     print('announcements synced')
 
 @client.event
 async def on_message(message):
-    print(message.content)
-    print(message.id)
-    print(message.created_at)
-    add_announcement(message)
+    if message.channel.id == int(ANNOUNCEMENTS_ID):
+        status = add_announcement(message)
+        print(f'{status} {message.created_at}: new announcement')
+
 
 @client.event
 async def on_message_edit(message_before, message_after):
-    edit_announcement(message_after)
+    if message_after.channel.id == int(ANNOUNCEMENTS_ID):
+        status = edit_announcement(message_after)
+        print(f'{status} {message_after.created_at}: edited announcement')
 
 @client.event
 async def on_message_delete(message):
-    remove_announcement(message)
+    if message.channel.id == int(ANNOUNCEMENTS_ID):
+        status = remove_announcement(message)
+        print(f'{status} {message.created_at}: deleted announcement')
 
 
 client.run(DISCORD_TOKEN)
