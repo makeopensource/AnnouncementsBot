@@ -110,4 +110,26 @@ async def on_message_delete(message):
         print(f'{status} {message.created_at}: deleted announcement')
 
 
+@client.event 
+async def on_raw_reaction_add(payload): 
+    message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id) 
+    reaction = payload.emoji.name 
+  
+    if payload.emoji.is_unicode_emoji(): 
+        # send a post request with reaction=payload.emoji.name 
+        pass 
+    elif payload.emoji.is_custom_emoji(): 
+        # send post request with reaction=payload.emoji.url 
+       pass 
+    print('reaction added') 
+ 
+ 
+@client.event 
+async def on_raw_reaction_remove(payload): 
+    print('reaction removed') 
+    # send remove request to remove reaction from message 
+    pass 
+
+
+
 client.run(DISCORD_TOKEN)
