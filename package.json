@@ -1,0 +1,24 @@
+{
+  "name": "annbot",
+  "version": "1.0.0",
+  "description": "An announcements discord bot for MakeOpenSource",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makeopensource/announcements-bot.git"
+  },
+  "author": "Emil Kovacev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/makeopensource/announcements-bot/issues"
+  },
+  "homepage": "https://github.com/makeopensource/announcements-bot#readme",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "discord-fetch-all": "^3.0.2",
+    "discord.js": "^13.5.1"
+  }
+}
