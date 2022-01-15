@@ -9,7 +9,7 @@
 {
     "host": "<insert host here>",
     "port": "insert port here",
-	"token": "<insert token here>",
+    "token": "<insert token here>",
     "channel_id": "<insert channel_id here>"
 }
 ```
