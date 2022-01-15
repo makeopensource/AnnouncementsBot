@@ -36,3 +36,24 @@ npm install
 ```
 node .
 ```
+
+
+### Output
+
+The expected JSON output will be as follows:
+
+```json
+{
+    "messages": [
+        {
+            "author": "ProminentOperator", 
+            "message": "🐙 Hi @everyone!"
+        },
+
+        {
+            "author": "ProminentOperator", 
+            "message": "🦩 Hey @everyone!"
+        }
+    ]
+}
+```
