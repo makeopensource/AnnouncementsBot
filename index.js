@@ -1,7 +1,7 @@
 const { Client, Intents } = require('discord.js');
 const axios = require('axios')
 const fetch_all = require('discord-fetch-all');
-require('dotenv').config();
+const config = require('./config.json');
 
 const client = new Client({ 
     intents: [Intents.FLAGS.GUILDS], 
@@ -16,7 +16,7 @@ client.once('messageUpdate', () => handle(client));
 
 
 async function handle(client) {
-    let channel = client.channels.cache.get(process.env.CHANNEL_ID);
+    let channel = client.channels.cache.get(config.channel_id);
     const messages = await fetch_all.messages(channel, {userOnly: true});
     const message_filter = (message) => {
         return {
@@ -35,10 +35,10 @@ async function post_messages(m) {
     console.log(m);
     axios
         .post(
-            `http://${process.env.HOST}:${process.env.PORT}/announcements`, m)
+            `http://${config.host}:${config.port}/announcements`, m)
         .then(res => {
             console.log(`status code: ${res.status}`)
         })
 }
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(config.token);
