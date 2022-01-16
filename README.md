@@ -42,17 +42,32 @@ node .
 
 The expected JSON output will be as follows:
 
-```json
+```javascript
 {
     "messages": [
         {
-            "author": "ProminentOperator", 
-            "message": "🐙 Hi @everyone!"
+            "author": "ProminentOperator",  // whoever wrote the announcement
+            "message": "🐙 Hi @everyone!",  // the announcement message
+            "createdAt": "2022-01-01T18:51:58.151Z",  // the announcement post time
+            "reactions": [
+                {
+                  "type": "custom",  // "custom" means that the "content" is a link to the image
+                  "content": "https://cdn.discordapp.com/emojis/889568829796143155.png",
+                  "count": 6
+                },
+                {
+                  "type": "emoji",  // "emoji" means that the "content" is a utf-8 emoji
+                  "content": "🎉",
+                  "count": 5
+                }
+            ]
         },
 
         {
             "author": "ProminentOperator", 
-            "message": "🦩 Hey @everyone!"
+            "message": "🦩 Hey @everyone!",
+            "createdAt": "2021-12-21T19:59:28.957Z",
+            "reactions": []  // if "reactions" is empty, the message had no reactions
         }
     ]
 }

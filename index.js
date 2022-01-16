@@ -2,6 +2,7 @@ const { Client, Intents } = require('discord.js');
 const axios = require('axios')
 const fetch_all = require('discord-fetch-all');
 const config = require('./config.json');
+const fs = require('fs'); // remove!!!
 
 const client = new Client({ 
     intents: [Intents.FLAGS.GUILDS], 
@@ -18,11 +19,37 @@ client.once('messageUpdate', () => handle(client));
 async function handle(client) {
     let channel = client.channels.cache.get(config.channel_id);
     const messages = await fetch_all.messages(channel, {userOnly: true});
+   
+    console.log(messages[2]['reactions'].cache);
+
+    const reaction_filter = (reaction) => {
+        if (!reaction._emoji.id) {
+            return {
+                "type": "emoji",
+                "content": reaction._emoji.name,
+                "count": reaction.count
+            }
+        } else {
+            return {
+                "type": "custom",
+                "content": `https://cdn.discordapp.com/emojis/${reaction._emoji.id}.png`,
+                "count": reaction.count
+            }
+        }
+    }   
+
     const message_filter = (message) => {
         return {
             'author': message.author.username, 
             'message': message.content,
-            'createdAt': message.createdAt
+            'createdAt': message.createdAt,
+            'reactions': message.reactions.cache.map(reaction_filter)
+
+            /* {
+                "type": ("emoji" or "reaction"),
+                "content": (if emoji, emoji. if reaction, link),
+                "frequency": number
+            } */
         }
     }
 
@@ -31,14 +58,10 @@ async function handle(client) {
 }
 
 
-async function post_messages(m) {
-    console.log(m);
+async function post_messages(message) {
     axios
-        .post(
-            `http://${config.host}:${config.port}/announcements`, m)
-        .then(res => {
-            console.log(`status code: ${res.status}`)
-        })
+        .post(`http://${config.host}:${config.port}/announcements`, message)
+        .then(res => {console.log(`status code: ${res.status}`)})
 }
 
 client.login(config.token);
