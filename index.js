@@ -1,8 +1,7 @@
 const { Client, Intents } = require('discord.js');
 const axios = require('axios')
 const fetch_all = require('discord-fetch-all');
-const config = require('./config.json');
-const fs = require('fs'); // remove!!!
+const { host, port, token, channel_id } = require('./config.json');
 
 const client = new Client({ 
     intents: [Intents.FLAGS.GUILDS], 
@@ -10,18 +9,22 @@ const client = new Client({
 });
 
 
-client.once('ready', () => handle(client));
+client.once('ready', () => {
+    console.log('Ready!');
+    handle(client);
+});
+
 client.once('messageCreate', () => handle(client));
 client.once('messageDelete', () => handle(client));
 client.once('messageUpdate', () => handle(client));
 
 
 async function handle(client) {
-    let channel = client.channels.cache.get(config.channel_id);
+    let channel = client.channels.cache.get(channel_id);
     const messages = await fetch_all.messages(channel, {userOnly: true});
-   
-    console.log(messages[2]['reactions'].cache);
 
+    console.log('fetched messages');
+   
     const reaction_filter = (reaction) => {
         if (!reaction._emoji.id) {
             return {
@@ -55,13 +58,14 @@ async function handle(client) {
 
     const parsed_messages = JSON.stringify({"messages": messages.map(message_filter)});
     post_messages(parsed_messages);
+    console.log('message sent!')
 }
 
 
 async function post_messages(message) {
     axios
-        .post(`http://${config.host}:${config.port}/announcements`, message)
+        .post(`http://${host}:${port}/announcements`, message)
         .then(res => {console.log(`status code: ${res.status}`)})
 }
 
-client.login(config.token);
+client.login(token);
