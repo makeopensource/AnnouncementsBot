@@ -8,7 +8,7 @@ load_dotenv()
 
 host = os.getenv("HOST")
 port = os.getenv("PORT")
-token = os.getenv("TOKEN")
+token = str(os.getenv("TOKEN"))
 channel_id = int(os.getenv("CHANNEL_ID"))
 
 
