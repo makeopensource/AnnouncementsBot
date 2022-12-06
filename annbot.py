@@ -43,11 +43,11 @@ async def on_raw_reaction_remove(payload):
 
 async def handle(client):
     channel = client.get_channel(channel_id)
+    all_channels = client.get_all_channels()
     messages = await channel.history(limit=200).flatten()
-    parsed = {'messages': [std_message(_) for _ in messages]}
+    parsed = {'messages': [std_message(_) for _ in messages], "channels": {x.id: std_channel(x) for x in all_channels}}
     response = requests.post(f'http://{host}:{port}/announcements', data=json.dumps(parsed))
     print(f'{response.status_code}{response.text}')
-
 
 
 def std_message(message):
@@ -75,5 +75,9 @@ def std_reaction(reaction):
 
 def std_attachment(attachement):
     return attachement.url
+
+
+def std_channel(channel):
+    return channel.name
 
 bot.run(token)
