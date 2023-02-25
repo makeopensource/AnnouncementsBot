@@ -9,8 +9,8 @@ load_dotenv()
 host = os.getenv("HOST")
 port = os.getenv("PORT")
 token = str(os.getenv("TOKEN"))
-channel_id = int(os.getenv("CHANNEL_ID"))
-max_messages = int(os.getenv("MAX_MESSAGES")) or 20
+channel_id = int(os.getenv("CHANNEL_ID") or 0)
+max_messages = int(os.getenv("MAX_MESSAGES") or 20)
 
 
 bot = discord.Bot()
