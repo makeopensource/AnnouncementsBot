@@ -10,6 +10,7 @@ host = os.getenv("HOST")
 port = os.getenv("PORT")
 token = str(os.getenv("TOKEN"))
 channel_id = int(os.getenv("CHANNEL_ID"))
+max_messages = int(os.getenv("MAX_MESSAGES")) or 20
 
 
 bot = discord.Bot()
@@ -44,10 +45,16 @@ async def on_raw_reaction_remove(payload):
 async def handle(client):
     channel = client.get_channel(channel_id)
     all_channels = client.get_all_channels()
-    messages = await channel.history(limit=200).flatten()
-    parsed = {'messages': [std_message(_) for _ in messages], "channels": {x.id: std_channel(x) for x in all_channels}}
-    response = requests.post(f'http://{host}:{port}/announcements', data=json.dumps(parsed))
-    print(f'{response.status_code}{response.text}')
+    messages = await channel.history(limit=max_messages).flatten()
+    parsed = {
+        'messages': [std_message(_) for _ in messages], 
+        "channels": {x.id: std_channel(x) for x in all_channels}
+    }
+    response = requests.post(
+        f'http://{host}:{port}/announcements', 
+        data=json.dumps(parsed)
+    )
+    print(f'{response.status_code}')
 
 
 def std_message(message):
